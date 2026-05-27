@@ -5,6 +5,8 @@ import html2canvas from "html2canvas";
 import { useRef } from "react";
 import { jsPDF } from "jspdf";
 import Footer from "./components/Footer.jsx";
+import { pdf } from "@react-pdf/renderer";
+import InvoicePDF from "./components/InvoicePDF.jsx";
 import {
   FaDoorClosed,
   FaDownload,
@@ -132,146 +134,175 @@ function App() {
 
   const total = totalProduit + Number(formData.livraison);
 
-  const exportPDF = async () => {
-    if (!logoLoaded) {
-      alert("Chargement du logo en cours, veuillez réessayer...");
-      return;
-    }
+  // const exportPDF = async () => {
+  //   if (!logoLoaded) {
+  //     alert("Chargement du logo en cours, veuillez réessayer...");
+  //     return;
+  //   }
 
+  //   setLoadingExport(true);
+  //   setExportProgress(10);
+
+  //   try {
+  //     // Étape 1 : Attendre le rendu complet
+  //     setExportProgress(20);
+  //     await new Promise((r) => setTimeout(r, 500));
+
+  //     // Étape 2 : Créer un clone temporaire de l'élément pour éviter les problèmes CORS
+  //     const originalElement = invoiceRef.current;
+  //     if (!originalElement) throw new Error("Élément non trouvé");
+
+  //     setExportProgress(40);
+
+  //     // Solution: Convertir le logo SVG en dataURL pour éviter les problèmes CORS
+  //     const svgElements = originalElement.querySelectorAll('img[src*=".svg"]');
+  //     const tempReplacements = [];
+
+  //     // Remplacer temporairement les SVG par des canvas pour la capture
+  //     for (const svgImg of svgElements) {
+  //       try {
+  //         const canvas = document.createElement("canvas");
+  //         const ctx = canvas.getContext("2d");
+  //         const img = new Image();
+
+  //         // Attendre le chargement de l'image
+  //         await new Promise((resolve, reject) => {
+  //           img.onload = resolve;
+  //           img.onerror = reject;
+  //           img.src = svgImg.src;
+  //         });
+
+  //         canvas.width = img.width;
+  //         canvas.height = img.height;
+  //         ctx.drawImage(img, 0, 0);
+
+  //         // Remplacer l'img par le canvas temporairement
+  //         const tempCanvas = document.createElement("img");
+  //         tempCanvas.src = canvas.toDataURL();
+  //         tempCanvas.style.width = svgImg.style.width;
+  //         tempCanvas.style.height = svgImg.style.height;
+  //         tempCanvas.className = svgImg.className;
+
+  //         tempReplacements.push({
+  //           original: svgImg,
+  //           temp: tempCanvas,
+  //           parent: svgImg.parentNode,
+  //           next: svgImg.nextSibling,
+  //         });
+
+  //         svgImg.parentNode.replaceChild(tempCanvas, svgImg);
+  //       } catch (err) {
+  //         console.error("Erreur conversion SVG:", err);
+  //       }
+  //     }
+
+  //     setExportProgress(60);
+
+  //     // Capture avec html2canvas optimisée
+  //     const canvas = await html2canvas(originalElement, {
+  //       scale: 3,
+  //       useCORS: true,
+  //       allowTaint: false,
+  //       backgroundColor: "#ffffff",
+  //       logging: false,
+  //       imageTimeout: 0,
+  //       onclone: (clonedDoc, element) => {
+  //         // Forcer l'affichage du logo dans le clone
+  //         const clonedLogos = clonedDoc.querySelectorAll(
+  //           ".company-logo img, .logo-badge img, #logo2",
+  //         );
+  //         clonedLogos.forEach((logo) => {
+  //           if (logo) {
+  //             logo.style.opacity = "1";
+  //             logo.style.visibility = "visible";
+  //             logo.style.display = "block";
+  //           }
+  //         });
+  //       },
+  //     });
+
+  //     // Restaurer les éléments originaux
+  //     for (const replacement of tempReplacements) {
+  //       replacement.parent.replaceChild(replacement.original, replacement.temp);
+  //     }
+
+  //     setExportProgress(80);
+
+  //     const imgData = canvas.toDataURL("image/png", 1.0);
+
+  //     const pdf = new jsPDF({
+  //       orientation: "portrait",
+  //       unit: "mm",
+  //       format: "a4",
+  //       compress: true,
+  //     });
+
+  //     const pdfWidth = pdf.internal.pageSize.getWidth();
+  //     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+  //     pdf.addImage(
+  //       imgData,
+  //       "PNG",
+  //       0,
+  //       0,
+  //       pdfWidth,
+  //       pdfHeight,
+  //       undefined,
+  //       "FAST",
+  //     );
+
+  //     const fileName =
+  //       `facture_${formData.client || "client"}_${formData.date || "date"}`.replace(
+  //         /\s+/g,
+  //         "_",
+  //       );
+
+  //     pdf.save(fileName + ".pdf");
+
+  //     setExportProgress(100);
+
+  //     await new Promise((r) => setTimeout(r, 1000));
+  //   } catch (error) {
+  //     console.error("Erreur lors de l'export PDF:", error);
+  //     alert(
+  //       "Une erreur est survenue lors de la génération du PDF: " +
+  //         error.message,
+  //     );
+  //   } finally {
+  //     setLoadingExport(false);
+  //     setExportProgress(0);
+  //   }
+  // };
+  const exportPDF = async () => {
     setLoadingExport(true);
-    setExportProgress(10);
+    setExportProgress(30);
 
     try {
-      // Étape 1 : Attendre le rendu complet
-      setExportProgress(20);
-      await new Promise((r) => setTimeout(r, 500));
-
-      // Étape 2 : Créer un clone temporaire de l'élément pour éviter les problèmes CORS
-      const originalElement = invoiceRef.current;
-      if (!originalElement) throw new Error("Élément non trouvé");
-
-      setExportProgress(40);
-
-      // Solution: Convertir le logo SVG en dataURL pour éviter les problèmes CORS
-      const svgElements = originalElement.querySelectorAll('img[src*=".svg"]');
-      const tempReplacements = [];
-
-      // Remplacer temporairement les SVG par des canvas pour la capture
-      for (const svgImg of svgElements) {
-        try {
-          const canvas = document.createElement("canvas");
-          const ctx = canvas.getContext("2d");
-          const img = new Image();
-
-          // Attendre le chargement de l'image
-          await new Promise((resolve, reject) => {
-            img.onload = resolve;
-            img.onerror = reject;
-            img.src = svgImg.src;
-          });
-
-          canvas.width = img.width;
-          canvas.height = img.height;
-          ctx.drawImage(img, 0, 0);
-
-          // Remplacer l'img par le canvas temporairement
-          const tempCanvas = document.createElement("img");
-          tempCanvas.src = canvas.toDataURL();
-          tempCanvas.style.width = svgImg.style.width;
-          tempCanvas.style.height = svgImg.style.height;
-          tempCanvas.className = svgImg.className;
-
-          tempReplacements.push({
-            original: svgImg,
-            temp: tempCanvas,
-            parent: svgImg.parentNode,
-            next: svgImg.nextSibling,
-          });
-
-          svgImg.parentNode.replaceChild(tempCanvas, svgImg);
-        } catch (err) {
-          console.error("Erreur conversion SVG:", err);
-        }
-      }
-
-      setExportProgress(60);
-
-      // Capture avec html2canvas optimisée
-      const canvas = await html2canvas(originalElement, {
-        scale: 3,
-        useCORS: true,
-        allowTaint: false,
-        backgroundColor: "#ffffff",
-        logging: false,
-        imageTimeout: 0,
-        onclone: (clonedDoc, element) => {
-          // Forcer l'affichage du logo dans le clone
-          const clonedLogos = clonedDoc.querySelectorAll(
-            ".company-logo img, .logo-badge img, #logo2",
-          );
-          clonedLogos.forEach((logo) => {
-            if (logo) {
-              logo.style.opacity = "1";
-              logo.style.visibility = "visible";
-              logo.style.display = "block";
-            }
-          });
-        },
-      });
-
-      // Restaurer les éléments originaux
-      for (const replacement of tempReplacements) {
-        replacement.parent.replaceChild(replacement.original, replacement.temp);
-      }
+      const blob = await pdf(<InvoicePDF formData={formData} />).toBlob();
 
       setExportProgress(80);
 
-      const imgData = canvas.toDataURL("image/png", 1.0);
-
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-        compress: true,
-      });
-
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-      pdf.addImage(
-        imgData,
-        "PNG",
-        0,
-        0,
-        pdfWidth,
-        pdfHeight,
-        undefined,
-        "FAST",
-      );
-
-      const fileName =
-        `facture_${formData.client || "client"}_${formData.date || "date"}`.replace(
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download =
+        `facture_${formData.client || "client"}_${formData.date || "date"}.pdf`.replace(
           /\s+/g,
           "_",
         );
-
-      pdf.save(fileName + ".pdf");
+      a.click();
+      URL.revokeObjectURL(url);
 
       setExportProgress(100);
-
-      await new Promise((r) => setTimeout(r, 1000));
-    } catch (error) {
-      console.error("Erreur lors de l'export PDF:", error);
-      alert(
-        "Une erreur est survenue lors de la génération du PDF: " +
-          error.message,
-      );
+      await new Promise((r) => setTimeout(r, 800));
+    } catch (err) {
+      console.error("Erreur export PDF:", err);
+      alert("Erreur : " + err.message);
     } finally {
       setLoadingExport(false);
       setExportProgress(0);
     }
   };
-
   return (
     <>
       {!isLogged ? (
