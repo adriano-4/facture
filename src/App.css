@@ -40,8 +40,8 @@ body {
   background: white;
   border-radius: 20px;
   padding: 3rem;
-  width: 100%;
-  max-width: 520px;
+  /* width: 100%; */
+  width: 520px;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
 }
 
@@ -261,7 +261,11 @@ header {
   justify-content: space-between;
   margin-bottom: 2rem;
 }
-
+.merci {
+  font-size: 0.75rem;
+  margin-top: 30px;
+  color: #1a1a2eb3;
+}
 .company-logo {
   display: flex;
   gap: 1rem;
@@ -446,11 +450,13 @@ header {
   border-radius: 50%;
 }
 
-.invoice-scale-label {
+.invoice-scale-label,
+.invoice-scale-label2 {
   font-size: 12px;
   color: #6b6b64;
 }
-.invoice {
+.invoice-scale-label2 {
+  display: none;
 }
 .field {
   width: 100%;
@@ -781,6 +787,80 @@ header {
   }
 }
 
+@media (max-width: 1069px) {
+  .invoice {
+    scale: 0.8;
+  }
+  .invoice-scale-label2 {
+    display: block;
+  }
+  .invoice-scale-label {
+    display: none;
+  }
+}
+@media (max-width: 985px) {
+  .workspace {
+    display: flex;
+    flex-direction: column;
+    padding-top: 60px;
+  }
+
+  .panel-left {
+    width: 100%;
+  }
+
+  .panel-right {
+    width: 100%;
+    background: #e6e5e232;
+    padding: 3rem;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .invoice {
+    scale: 1.2;
+  }
+  .invoice-scale-label2 {
+    display: block;
+  }
+  .invoice-scale-label {
+    display: none;
+  }
+}
+@media (max-width: 709px) {
+  .workspace {
+    display: flex;
+    flex-direction: column;
+    padding-top: 60px;
+  }
+
+  .panel-left {
+    width: 100%;
+  }
+
+  .panel-right {
+    width: 100%;
+    background: #e6e5e232;
+    padding: 3rem;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .invoice {
+    scale: 0.8;
+  }
+  .invoice-wrapper {
+    height: 600px;
+  }
+  .invoice-scale-label2 {
+    display: block;
+  }
+  .invoice-scale-label {
+    display: none;
+  }
+}
 /* Responsive Footer */
 @media (max-width: 768px) {
   .footer-content {
@@ -832,5 +912,55 @@ header {
 
   .footer-description {
     font-size: 0.85rem;
+  }
+  #login-page {
+    padding: 0;
+  }
+  .login-card {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+  }
+  .login-logo h1 {
+    scale: 0.7;
+  }
+  .login-logo p {
+    scale: 0.9;
+  }
+  .workspace {
+    display: flex;
+    flex-direction: column;
+    padding-top: 60px;
+  }
+
+  .panel-left {
+    width: 100%;
+  }
+
+  .panel-right {
+    width: 100%;
+    background: #e6e5e232;
+    padding: 3rem;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .header-user span span {
+    display: none;
+  }
+  .invoice {
+    scale: 0.6;
+  }
+  .invoice-wrapper {
+    height: 400px;
+  }
+  .invoice-scale-label2 {
+    display: block;
+  }
+  .invoice-scale-label {
+    display: none;
   }
 }

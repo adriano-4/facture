@@ -343,7 +343,7 @@ function App() {
 
             <div className="header-user">
               <span>
-                Connecté en tant que
+                <span>Connecté en tant que</span>
                 <strong>{loginData.username}</strong>
               </span>
 
@@ -503,6 +503,7 @@ function App() {
             <div className="panel-right">
               <div className="invoice-wrapper">
                 <p className="invoice-scale-label">Aperçu A4 — 72%</p>
+                <p className="invoice-scale-label2">Apercu A4</p>
 
                 <div className="invoice" ref={invoiceRef}>
                   <div className="invoice-top">
@@ -623,6 +624,7 @@ function App() {
                   </div>
 
                   <div className="signature-zone">Cachet & Signature</div>
+                  <p className="merci">Vary Hikari vous remercie</p>
                 </div>
               </div>
             </div>
