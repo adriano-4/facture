@@ -7,6 +7,7 @@ import { jsPDF } from "jspdf";
 import Footer from "./components/Footer.jsx";
 import { pdf } from "@react-pdf/renderer";
 import InvoicePDF from "./components/InvoicePDF.jsx";
+import Info from "./components/Info.jsx";
 import {
   FaDoorClosed,
   FaDownload,
@@ -16,17 +17,12 @@ import {
   FaSignOutAlt,
   FaUser,
   FaSpinner,
+  FaInfo,
 } from "react-icons/fa";
 import FooterSimple from "./components/FooterSimple.jsx";
 
-const PRODUCTS = {
-  riz_sushi: {
-    label: "Riz à Sushi",
-    unit: "Kg",
-    prix: 8000,
-    tva: 0.2,
-  },
-};
+import db from "./db/database";
+import { initDB, genererNumeroFacture } from "./db/init";
 
 function App() {
   const invoiceRef = useRef(null);
@@ -35,6 +31,7 @@ function App() {
   const [loadingExport, setLoadingExport] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
   const [logoLoaded, setLogoLoaded] = useState(false);
+  const [showBudget, setShowBudget] = useState(false);
 
   const [loginData, setLoginData] = useState({
     username: "",
@@ -54,34 +51,120 @@ function App() {
     date: "",
   });
 
+  const [products, setProducts] = useState({});
+  const [budgetData, setBudgetData] = useState([]);
+  const [dbReady, setDbReady] = useState(false);
+  const [clients, setClients] = useState([]);
+  const [selectedClientId, setSelectedClientId] = useState("");
+
   useEffect(() => {
-    const today = new Date().toISOString().split("T")[0];
+    const load = async () => {
+      await initDB();
 
-    setFormData((prev) => ({
-      ...prev,
-      date: today,
-    }));
+      // Charger produits
+      const rows = await db.produits.toArray();
+      const obj = {};
+      rows.forEach((p) => {
+        obj[p.key] = p;
+      });
+      setProducts(obj);
 
+      // Charger budget
+      const budget = await db.budget.toArray();
+      setBudgetData(budget);
+
+      const clientsDB = await db.clients.toArray();
+      setClients(clientsDB);
+
+      // Générer numéro facture automatique
+      const numero = await genererNumeroFacture();
+
+      // Date du jour
+      const today = new Date().toISOString().split("T")[0];
+
+      setFormData((prev) => ({ ...prev, date: today, numero }));
+      setDbReady(true);
+    };
+
+    load();
+
+    // Chargement logo
     const img = new Image();
     img.src = logo;
-    img.onload = () => {
-      setLogoLoaded(true);
-      console.log("Logo chargé avec succès");
-    };
-    img.onerror = (e) => {
-      console.error("Erreur chargement logo:", e);
-      setLogoLoaded(true);
-    };
+    img.onload = () => setLogoLoaded(true);
+    img.onerror = () => setLogoLoaded(true);
   }, []);
 
-  useEffect(() => {
+  const resetForm = async () => {
+    const nextNumero = await genererNumeroFacture();
     const today = new Date().toISOString().split("T")[0];
-
-    setFormData((prev) => ({
-      ...prev,
+    setSelectedClientId("");
+    setFormData({
+      client: "",
+      adresse: "",
+      ville: "",
+      nif: "",
+      stat: "",
+      produit: "riz_sushi",
+      quantite: 1,
+      livraison: 0,
+      numero: nextNumero,
       date: today,
-    }));
-  }, []);
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+  const handleSelectClient = (e) => {
+    const id = parseInt(e.target.value);
+    setSelectedClientId(e.target.value);
+    if (!id) {
+      setFormData((prev) => ({
+        ...prev,
+        client: "",
+        adresse: "",
+        nif: "",
+        stat: "",
+      }));
+      return;
+    }
+    const found = clients.find((c) => c.id === id);
+    if (found) {
+      setFormData((prev) => ({
+        ...prev,
+        client: found.nom,
+        adresse: found.adresse,
+        nif: found.nif,
+        stat: found.stat,
+      }));
+    }
+  };
+  // useEffect(() => {
+  //   const today = new Date().toISOString().split("T")[0];
+
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     date: today,
+  //   }));
+
+  //   const img = new Image();
+  //   img.src = logo;
+  //   img.onload = () => {
+  //     setLogoLoaded(true);
+  //     console.log("Logo chargé avec succès");
+  //   };
+  //   img.onerror = (e) => {
+  //     console.error("Erreur chargement logo:", e);
+  //     setLogoLoaded(true);
+  //   };
+  // }, []);
+
+  // useEffect(() => {
+  //   const today = new Date().toISOString().split("T")[0];
+
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     date: today,
+  //   }));
+  // }, []);
 
   const fmt = (n) => {
     return (
@@ -128,146 +211,43 @@ function App() {
     });
   };
 
-  const prod = PRODUCTS[formData.produit];
-
+  // const prod = PRODUCTS[formData.produit];
+  // ✅ Utiliser products (state) au lieu de PRODUCTS (constante)
+  const prod = products[formData.produit] || {
+    label: "",
+    unit: "",
+    prix: 0,
+    tva: 0,
+  };
   const totalProduit = prod.prix * Number(formData.quantite);
 
   const total = totalProduit + Number(formData.livraison);
 
   // const exportPDF = async () => {
-  //   if (!logoLoaded) {
-  //     alert("Chargement du logo en cours, veuillez réessayer...");
-  //     return;
-  //   }
-
   //   setLoadingExport(true);
-  //   setExportProgress(10);
+  //   setExportProgress(30);
 
   //   try {
-  //     // Étape 1 : Attendre le rendu complet
-  //     setExportProgress(20);
-  //     await new Promise((r) => setTimeout(r, 500));
-
-  //     // Étape 2 : Créer un clone temporaire de l'élément pour éviter les problèmes CORS
-  //     const originalElement = invoiceRef.current;
-  //     if (!originalElement) throw new Error("Élément non trouvé");
-
-  //     setExportProgress(40);
-
-  //     // Solution: Convertir le logo SVG en dataURL pour éviter les problèmes CORS
-  //     const svgElements = originalElement.querySelectorAll('img[src*=".svg"]');
-  //     const tempReplacements = [];
-
-  //     // Remplacer temporairement les SVG par des canvas pour la capture
-  //     for (const svgImg of svgElements) {
-  //       try {
-  //         const canvas = document.createElement("canvas");
-  //         const ctx = canvas.getContext("2d");
-  //         const img = new Image();
-
-  //         // Attendre le chargement de l'image
-  //         await new Promise((resolve, reject) => {
-  //           img.onload = resolve;
-  //           img.onerror = reject;
-  //           img.src = svgImg.src;
-  //         });
-
-  //         canvas.width = img.width;
-  //         canvas.height = img.height;
-  //         ctx.drawImage(img, 0, 0);
-
-  //         // Remplacer l'img par le canvas temporairement
-  //         const tempCanvas = document.createElement("img");
-  //         tempCanvas.src = canvas.toDataURL();
-  //         tempCanvas.style.width = svgImg.style.width;
-  //         tempCanvas.style.height = svgImg.style.height;
-  //         tempCanvas.className = svgImg.className;
-
-  //         tempReplacements.push({
-  //           original: svgImg,
-  //           temp: tempCanvas,
-  //           parent: svgImg.parentNode,
-  //           next: svgImg.nextSibling,
-  //         });
-
-  //         svgImg.parentNode.replaceChild(tempCanvas, svgImg);
-  //       } catch (err) {
-  //         console.error("Erreur conversion SVG:", err);
-  //       }
-  //     }
-
-  //     setExportProgress(60);
-
-  //     // Capture avec html2canvas optimisée
-  //     const canvas = await html2canvas(originalElement, {
-  //       scale: 3,
-  //       useCORS: true,
-  //       allowTaint: false,
-  //       backgroundColor: "#ffffff",
-  //       logging: false,
-  //       imageTimeout: 0,
-  //       onclone: (clonedDoc, element) => {
-  //         // Forcer l'affichage du logo dans le clone
-  //         const clonedLogos = clonedDoc.querySelectorAll(
-  //           ".company-logo img, .logo-badge img, #logo2",
-  //         );
-  //         clonedLogos.forEach((logo) => {
-  //           if (logo) {
-  //             logo.style.opacity = "1";
-  //             logo.style.visibility = "visible";
-  //             logo.style.display = "block";
-  //           }
-  //         });
-  //       },
-  //     });
-
-  //     // Restaurer les éléments originaux
-  //     for (const replacement of tempReplacements) {
-  //       replacement.parent.replaceChild(replacement.original, replacement.temp);
-  //     }
+  //     const blob = await pdf(<InvoicePDF formData={formData} />).toBlob();
 
   //     setExportProgress(80);
 
-  //     const imgData = canvas.toDataURL("image/png", 1.0);
-
-  //     const pdf = new jsPDF({
-  //       orientation: "portrait",
-  //       unit: "mm",
-  //       format: "a4",
-  //       compress: true,
-  //     });
-
-  //     const pdfWidth = pdf.internal.pageSize.getWidth();
-  //     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-  //     pdf.addImage(
-  //       imgData,
-  //       "PNG",
-  //       0,
-  //       0,
-  //       pdfWidth,
-  //       pdfHeight,
-  //       undefined,
-  //       "FAST",
-  //     );
-
-  //     const fileName =
-  //       `facture_${formData.client || "client"}_${formData.date || "date"}`.replace(
+  //     const url = URL.createObjectURL(blob);
+  //     const a = document.createElement("a");
+  //     a.href = url;
+  //     a.download =
+  //       `facture_${formData.client || "client"}_${formData.date || "date"}.pdf`.replace(
   //         /\s+/g,
   //         "_",
   //       );
-
-  //     pdf.save(fileName + ".pdf");
+  //     a.click();
+  //     URL.revokeObjectURL(url);
 
   //     setExportProgress(100);
-
-  //     await new Promise((r) => setTimeout(r, 1000));
-  //   } catch (error) {
-  //     console.error("Erreur lors de l'export PDF:", error);
-  //     alert(
-  //       "Une erreur est survenue lors de la génération du PDF: " +
-  //         error.message,
-  //     );
+  //     await new Promise((r) => setTimeout(r, 800));
+  //   } catch (err) {
+  //     console.error("Erreur export PDF:", err);
+  //     alert("Erreur : " + err.message);
   //   } finally {
   //     setLoadingExport(false);
   //     setExportProgress(0);
@@ -278,8 +258,35 @@ function App() {
     setExportProgress(30);
 
     try {
-      const blob = await pdf(<InvoicePDF formData={formData} />).toBlob();
+      const existe = clients.find(
+        (c) => c.nom.toLowerCase() === formData.client.toLowerCase(),
+      );
+      if (!existe && formData.client) {
+        const newClient = {
+          nom: formData.client,
+          adresse: formData.adresse,
+          nif: formData.nif,
+          stat: formData.stat,
+        };
+        await db.clients.add(newClient);
+        setClients((prev) => [...prev, newClient]);
+      }
 
+      const blob = await pdf(<InvoicePDF formData={formData} />).toBlob();
+      setExportProgress(70);
+
+      // ✅ Enregistrer la facture en DB
+      await db.factures.add({
+        numero: formData.numero,
+        client: formData.client,
+        date: formData.date,
+        total: totalProduit + Number(formData.livraison),
+      });
+
+      // Préparer le prochain numéro pour la facture suivante
+      // const nextNumero = await genererNumeroFacture();
+      // setFormData((prev) => ({ ...prev, numero: nextNumero }));
+      await resetForm();
       setExportProgress(80);
 
       const url = URL.createObjectURL(blob);
@@ -303,6 +310,21 @@ function App() {
       setExportProgress(0);
     }
   };
+
+  if (!dbReady) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+        }}
+      >
+        <FaSpinner className="spinner" /> &nbsp; Chargement...
+      </div>
+    );
+  }
   return (
     <>
       {!isLogged ? (
@@ -373,6 +395,12 @@ function App() {
             </div>
 
             <div className="header-user">
+              <button id="info_bu" onClick={() => setShowBudget(true)}>
+                <p>Informations Budgetaire </p>
+                <span>
+                  <FaInfo />
+                </span>
+              </button>
               <span>
                 <span>Connecté en tant que</span>
                 <strong>{loginData.username}</strong>
@@ -395,7 +423,18 @@ function App() {
                 </span>
                 Informations client
               </p>
-
+              <select
+                className="field"
+                value={selectedClientId}
+                onChange={handleSelectClient}
+              >
+                <option value="">Sélectionner un ancien client</option>
+                {clients.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.nom}
+                  </option>
+                ))}
+              </select>
               <div className="field">
                 <input
                   type="text"
@@ -452,12 +491,23 @@ function App() {
               <div className="field">
                 <label>Produit</label>
 
-                <select
+                {/* <select
                   name="produit"
                   value={formData.produit}
                   onChange={handleChange}
                 >
                   <option value="riz_sushi">Riz à Sushi — 8000 Ar / Kg</option>
+                </select> */}
+                <select
+                  name="produit"
+                  value={formData.produit}
+                  onChange={handleChange}
+                >
+                  {Object.entries(products).map(([key, p]) => (
+                    <option key={key} value={key}>
+                      {p.label} — {p.prix.toLocaleString("fr-FR")} Ar / {p.unit}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -662,6 +712,11 @@ function App() {
           </div>
           {/* <Footer /> */}
           <FooterSimple />
+          <Info
+            budgetData={budgetData}
+            show={showBudget}
+            onClose={() => setShowBudget(false)}
+          />
         </div>
       )}
     </>

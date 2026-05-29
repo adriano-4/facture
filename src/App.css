@@ -177,6 +177,22 @@ select:focus {
   margin-bottom: 1rem;
   font-size: 13px;
 }
+#info_bu {
+  background-color: rgba(121, 0, 61, 0.081);
+  padding: 0 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: rgb(121, 0, 60);
+  font-size: 0.65rem;
+  cursor: pointer;
+}
+#info_bu span {
+  font-size: 0.6rem;
+  position: relative;
+  bottom: 1px;
+}
 
 header {
   background: white;
@@ -316,6 +332,9 @@ header {
   display: flex;
   flex-direction: column;
   align-items: start;
+}
+.meta-block p span {
+  text-align: left;
 }
 .meta-block2 {
   display: flex;
@@ -764,6 +783,141 @@ header {
   animation: heartbeat 1.5s ease infinite;
 }
 
+.flou {
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(233, 233, 233, 0.29);
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+.centre {
+  width: 800px;
+  /* height: 500px; */
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.068);
+  padding: 10px 30px;
+  animation: centre 0.3s;
+}
+@keyframes centre {
+  from {
+    scale: 0.6;
+  }
+  to {
+    scale: 1;
+  }
+}
+@keyframes centre2 {
+  from {
+    transform: translateX(-400px);
+  }
+  to {
+    transform: translateX(0px);
+  }
+}
+.entete_centre {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  margin-top: 10px;
+}
+.entete_centre button {
+  font-size: 0.7rem;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  color: black;
+}
+.entete_centre h5 {
+  color: #1a1a2eb9;
+}
+.entete_bas {
+  width: 100%;
+  height: 60px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  background-color: #bba608;
+  color: white;
+  font-size: 0.8rem;
+  margin-bottom: 10px;
+}
+.entete_bas span {
+  font-weight: 600;
+}
+.entete_milieu {
+  width: 100%;
+  font-size: 0.9rem;
+  max-height: 400px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  margin-bottom: 20px;
+}
+.entete_milieu_table {
+  border-collapse: collapse;
+  width: 100%;
+  /* display: block; */
+}
+.resp_mil {
+  display: none;
+}
+
+.entete__ {
+  width: 100%;
+  border-bottom: 1px solid #00000025;
+  color: #00000070;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+  font-size: 0.7rem;
+  padding-bottom: 10px;
+}
+.entete__::-webkit-scrollbar {
+  background-color: white;
+}
+.entete__::-webkit-scrollbar-button {
+  display: none;
+}
+.entete__::-webkit-scrollbar-thumb {
+  background-color: black;
+  width: 5px;
+}
+.entete__ p {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+}
+.entete_milieu th {
+  padding: 0.4rem 0rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.7rem;
+}
+
+.entete_milieu td {
+  padding: 0.7rem 0rem;
+  border-bottom: 1px solid #f0f0f0;
+  color: #333;
+  font-size: 0.7rem;
+  text-align: left;
+}
+
+.entete_milieu tbody tr:hover {
+  background: #fafafa;
+}
+
 @keyframes heartbeat {
   0%,
   100% {
@@ -824,6 +978,49 @@ header {
   }
   .invoice-scale-label {
     display: none;
+  }
+  #info_bu p {
+    display: none;
+  }
+  .centre {
+    width: 100%;
+    height: 100%;
+    animation: centre2 0.5s;
+  }
+  .entete__ p {
+    font-size: 0.6rem;
+  }
+  .entete__ .recent {
+    text-wrap: nowrap;
+  }
+
+  .entete_milieu_table {
+    border-collapse: collapse;
+    width: 100%;
+    display: none;
+  }
+  .resp_mil {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+  }
+  .contenu {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    font-size: 0.7rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.153);
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+  .contenu_h {
+    display: flex;
+    justify-content: space-between;
+  }
+  .contenu p {
+    text-align: left;
   }
 }
 @media (max-width: 709px) {
