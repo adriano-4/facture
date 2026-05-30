@@ -395,7 +395,13 @@ function App() {
             </div>
 
             <div className="header-user">
-              <button id="info_bu" onClick={() => setShowBudget(true)}>
+              <button
+                id="info_bu"
+                onClick={() => {
+                  (window.scrollTo({ top: 0, behavior: "smooth" }),
+                    setShowBudget(true));
+                }}
+              >
                 <p>Informations Budgetaire </p>
                 <span>
                   <FaInfo />
