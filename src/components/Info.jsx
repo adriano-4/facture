@@ -92,6 +92,14 @@ function Info({ budgetData = [], show, onClose }) {
       Number(nombre).toLocaleString("fr-FR").replace(/\s/g, "."),
     );
   };
+  const getLastTotal = (data) => {
+    if (!data.length) return 0;
+
+    const last = data[data.length - 1].calcul;
+    const match = last.match(/=\s*(\d+)/);
+
+    return match ? Number(match[1]) : 0;
+  };
   return (
     <div className="flou" onClick={onClose}>
       <div className="centre" onClick={(e) => e.stopPropagation()}>
@@ -203,7 +211,7 @@ function Info({ budgetData = [], show, onClose }) {
         </div>
         <div className="entete_bas">
           <p>Total accumulé actuelement</p>
-          <span>287 000 Ar</span>
+          <span>{getLastTotal(data).toLocaleString("fr-FR")} Ar</span>
         </div>
       </div>
     </div>
