@@ -3,6 +3,72 @@ import logo from "../assets/vary hikari.svg";
 import { useEffect } from "react";
 import { FaX, FaInfo } from "react-icons/fa6";
 function Info({ budgetData = [], show, onClose }) {
+  // ===== DONNÉES LOCALES =====
+  const budgetDataLocal = [
+    {
+      date: "2026-05-04",
+      calcul: "80000 Ar - 8000 Ar = 72000 Ar",
+      description: "Nanalana frais de livraison Relais des plateaux",
+    },
+    {
+      date: "2026-05-04",
+      calcul: "72000 Ar - 5000 Ar = 67000 Ar",
+      description: "Nanalana frais de livraison Sahy Toliara",
+    },
+    {
+      date: "2026-05-04",
+      calcul: "67000 Ar - 12000 Ar = 55000 Ar",
+      description: "Nanalana frais nandefasana 47kg Fianarantsoa",
+    },
+    {
+      date: "2026-05-08",
+      calcul: "55000 Ar + 8000 Ar = 63000 Ar",
+      description: "1kg Presto",
+    },
+    {
+      date: "2026-05-11",
+      calcul: "63000 Ar + 40000 Ar = 103000 Ar",
+      description: "10kg tany am tonton Njaka",
+    },
+    {
+      date: "2026-05-16",
+      calcul: "103000 Ar + 48000 Ar = 151000 Ar",
+      description: "6kg Alasora",
+    },
+    {
+      date: "2026-05-26",
+      calcul: "151000 Ar + 8000 Ar = 159000 Ar",
+      description: "1kg Restaurant Shizuku",
+    },
+    {
+      date: "2026-05-27",
+      calcul: "159000 Ar + 8000 Ar = 167000 Ar",
+      description: "1kg Restaurant Huo cuisine",
+    },
+    {
+      date: "2026-05-27",
+      calcul: "167000 Ar + 80000 Ar = 247000 Ar",
+      description: "10kg Le sohimanga",
+    },
+    {
+      date: "2026-05-29",
+      calcul: "247000 Ar - 12500 Ar = 234500 Ar",
+      description: "Nividy balance",
+    },
+    {
+      date: "2026-05-30",
+      calcul: "234500 Ar + 8000 Ar = 242500 Ar",
+      description: "1kg ambodimita",
+    },
+    {
+      date: "2026-06-04",
+      calcul: "242500 Ar + 32000 Ar = 274500 Ar",
+      description: "4kg Ambohimanarina",
+    },
+  ];
+
+  const data = budgetDataLocal;
+
   useEffect(() => {
     if (show) {
       document.body.style.overflow = "hidden";
@@ -21,7 +87,11 @@ function Info({ budgetData = [], show, onClose }) {
     const [y, m, d] = str.split("-");
     return `${d}/${m}/${y}`;
   };
-
+  const formatCalcul = (calcul) => {
+    return calcul.replace(/\d+/g, (nombre) =>
+      Number(nombre).toLocaleString("fr-FR").replace(/\s/g, "."),
+    );
+  };
   return (
     <div className="flou" onClick={onClose}>
       <div className="centre" onClick={(e) => e.stopPropagation()}>
@@ -62,7 +132,7 @@ function Info({ budgetData = [], show, onClose }) {
             </tr>
           </thead> */}
             <tbody>
-              {budgetData
+              {data
                 .slice()
                 .reverse()
                 .map((row, i) => {
@@ -77,7 +147,8 @@ function Info({ budgetData = [], show, onClose }) {
                             : "#ef4444",
                         }}
                       >
-                        {row.calcul}
+                        {/* {row.calcul} */}
+                        {formatCalcul(row.calcul)}
                       </td>
                       <td
                         style={{
@@ -103,7 +174,7 @@ function Info({ budgetData = [], show, onClose }) {
             </tbody>
           </table>
           <div className="resp_mil">
-            {budgetData
+            {data
               .slice()
               .reverse()
               .map((row, i) => {
@@ -120,7 +191,8 @@ function Info({ budgetData = [], show, onClose }) {
                             : "#ef4444",
                         }}
                       >
-                        {row.calcul}
+                        {/* {row.calcul} */}
+                        {formatCalcul(row.calcul)}
                       </span>
                     </div>
                     <p>{row.description}</p>
@@ -131,7 +203,7 @@ function Info({ budgetData = [], show, onClose }) {
         </div>
         <div className="entete_bas">
           <p>Total accumulé actuelement</p>
-          <span>252 000 Ar</span>
+          <span>287 000 Ar</span>
         </div>
       </div>
     </div>
