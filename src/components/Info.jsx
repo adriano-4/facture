@@ -65,6 +65,11 @@ function Info({ budgetData = [], show, onClose }) {
       calcul: "242500 Ar + 32000 Ar = 274500 Ar",
       description: "4kg Ambohimanarina",
     },
+    {
+      date: "2026-06-05",
+      calcul: "274500 Ar + 40000 Ar = 314500 Ar",
+      description: "5kg Restaurant foodzone ankorahoatra",
+    },
   ];
 
   const data = budgetDataLocal;
